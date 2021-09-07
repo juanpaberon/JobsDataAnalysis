@@ -9,7 +9,7 @@ time.sleep(2)
 driver.maximize_window()
 
 # driver.get method() will navigate to a page given by the URL address
-driver.get('https://www.linkedin.com/jobs/search/?f_E=2&f_TPR=r604800&f_WRA=true&geoId=103644278&keywords=(data%20scientist)AND(python)AND(git)&location=United%20States&sortBy=R')
+driver.get('https://www.linkedin.com/jobs/search/?f_E=2&f_TPR=r604800&f_WRA=true&geoId=103644278&keywords=(data%20scientist)AND(python)AND(git)&location=United%20States&sortBy=DD')
 time.sleep(10)
 
 # Find the information about the date the job was posted, the name of the position, and location
@@ -20,12 +20,15 @@ infos = []
 for job in bs.findAll('ul',{'class':'jobs-search__results-list'})[0].findAll('li'):
     job_desc = list(job)[1]
     print('|----------|')
+    title = job_desc.find('h3',{'class':"base-search-card__title"}).getText().strip()
+    company = job_desc.find('h4',{'class':"base-search-card__subtitle"}).getText().strip()
+    location = job_desc.find('span',{'class':"job-search-card__location"}).getText().strip()
     try:
-        print(job_desc.find('time',{'class':"job-search-card__listdate"}).attrs['datetime'])
-        infos.append(job_desc.find('time',{'class':"job-search-card__listdate"}).attrs['datetime'])
+        time_posted = job_desc.find('time',{'class':"job-search-card__listdate"}).attrs['datetime']
     except:
-        print(job_desc.find('time',{'class':"job-search-card__listdate--new"}).attrs['datetime'])
-        infos.append(job_desc.find('time',{'class':"job-search-card__listdate--new"}).attrs['datetime'])
+        time_posted = job_desc.find('time',{'class':"job-search-card__listdate--new"}).attrs['datetime']
+        
+    infos.append([title, company, location, time_posted])
 
 
 # Find the location of the links to expand the information
@@ -37,19 +40,10 @@ print(len(jobs))
 # Clink on each job to access their description
 for i, job in enumerate(jobs):
     print()
-    for info in infos:
-        print(info)
+    print(infos[i])
     print()
     job.click()
     time.sleep(1.5)
     driver.find_element_by_class_name('show-more-less-html__button').click()
+    print(driver.find_element_by_class_name('show-more-less-html__markup').text)
     time.sleep(2)
-#     bs = BeautifulSoup(driver.page_source, 'html.parser')
-#     des = bs.findAll('div', {'class':'show-more-less-html__markup'})[0]
-#     print(des)
-#     print()
-#     job_cri = bs.findAll('ul', {'class':'job-criteria__list'})[0]
-#     print(job_cri)
-#     print()
-#     print('|---|')
-#     print()
