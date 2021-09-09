@@ -44,13 +44,38 @@ def set_up_job_search(driver):
     return driver_tmp.find_elements_by_css_selector(".jobs-search-results__list-item.occludable-update.p0.relative.ember-view")
 
 
-def get_job_info(driver, job):
+def get_job_info(driver):
     driver_tmp = driver.find_element_by_class_name("jobs-unified-top-card__content--two-pane")
-    title = driver_tmp.find_element_by_css_selector(".t-24.t-bold").text
-    company = driver_tmp.find_element_by_css_selector(".ember-view.t-black.t-normal").text
-    location = driver_tmp.find_element_by_class_name("jobs-unified-top-card__bullet").text
-    description = driver.find_element_by_css_selector(".jobs-description__container.m4").text
+    try:
+        title = driver_tmp.find_element_by_css_selector(".t-24.t-bold").text
+    except Exception as e:
+        print('title',e)
+        title = '...'
+    try:
+        company = driver_tmp.find_element_by_css_selector(".ember-view.t-black.t-normal").text
+    except Exception as e:
+        print('company',e)
+        company = '...'
+    try:
+        location = driver_tmp.find_element_by_class_name("jobs-unified-top-card__bullet").text
+    except Exception as e:
+        print('location',e)
+        location = '...'
+    try:
+        description = driver.find_element_by_css_selector(".jobs-description__container.m4").text
+    except Exception as e:
+        print('description',e)
+        description = '...'
     return title, company, location, description
+
+
+def get_company_url(job):
+    try:
+        url = job.find_element_by_css_selector('.job-card-container__link.job-card-container__company-name.ember-view').get_attribute("href")
+    except Exception as e:
+        print('url',e)
+        url = '...'
+    return url
 
 
 # specifies the path to the chromedriver.exe
@@ -78,18 +103,19 @@ jobs = set_up_job_search(driver)
 
 for i, job in enumerate(jobs):
     print()
+    url = get_company_url(job)
     job.find_element_by_css_selector('.full-width.artdeco-entity-lockup__title.ember-view').click()
     time.sleep(1.5)
-    title, company, location, description = get_job_info(driver, job)
+    title, company, location, description = get_job_info(driver)
     print('|----------|')
     print(current_job,total_jobs)
     current_job += 1
-    print(title, company, location)
-    print(description)
+    print(title, company, location, url)
     with open(file_name,'a', encoding='utf-8') as f:
         f.write('|----------|\n\n')
         f.write(title+'\n')
         f.write(company+'\n')
+        f.write(url+'\n')
         f.write(location+'\n')
         f.write(description+'\n')
         f.write('\n')
@@ -104,17 +130,18 @@ for i in range(25,total_jobs,25):
 
     for i, job in enumerate(jobs):
         print()
+        url = get_company_url(job)
         job.find_element_by_css_selector('.full-width.artdeco-entity-lockup__title.ember-view').click()
         time.sleep(1.5)
-        title, company, location, description = get_job_info(driver, job)
+        title, company, location, description = get_job_info(driver)
         print(current_job,total_jobs)
         current_job += 1
-        print(title, company, location)
-        print(description)
+        print(title, company, location, url)
         with open(file_name,'a', encoding='utf-8') as f:
             f.write('|----------|')
             f.write(title)
             f.write(company)
+            f.write(url+'\n')
             f.write(location)
             f.write(description)
             f.write('\n')
