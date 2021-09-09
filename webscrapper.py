@@ -32,7 +32,7 @@ def log_in(driver):
 def get_total_jobs(driver):
     # Find the information about the date the job was posted, the name of the position, and location
     bs = BeautifulSoup(driver.page_source, 'html.parser')
-    return int(bs.find('small',{'class':'display-flex t-12 t-black--light t-normal'}).getText().strip().split(' ')[0])
+    return int(bs.find('small',{'class':'display-flex t-12 t-black--light t-normal'}).getText().strip().split(' ')[0].replace(',', ''))
 
 
 def set_up_job_search(driver):
@@ -55,7 +55,7 @@ def get_job_info(driver, job):
 
 # specifies the path to the chromedriver.exe
 options = webdriver.ChromeOptions()
-options.add_argument('--ignore-certificate-errors')
+options.add_argument('--ignore-certificate-errors-spki-list')
 options.add_argument('--ignore-ssl-errors')
 driver = webdriver.Chrome(r'C:\Users\juanp\Documents\chromedriver', chrome_options=options)
 
@@ -67,8 +67,10 @@ driver.get("https://www.linkedin.com/")
 current_job = 1
 
 log_in(driver)
+file_name = 'data\\data_scientist.txt'
+base_url = 'https://www.linkedin.com/jobs/search/?f_E=2&f_TPR=r604800&f_WRA=true&geoId=103644278&keywords=(data%20scientist)&location=United%20States&sortBy=DD'
 
-driver.get('https://www.linkedin.com/jobs/search/?f_E=2&f_TPR=r604800&f_WRA=true&geoId=103644278&keywords=(data%20scientist)AND(python)AND(git)&location=United%20States&sortBy=DD&start=0')
+driver.get(base_url + '&start=0')
 time.sleep(5)
 total_jobs = get_total_jobs(driver)
 
@@ -84,12 +86,18 @@ for i, job in enumerate(jobs):
     current_job += 1
     print(title, company, location)
     print(description)
+    with open(file_name,'a', encoding='utf-8') as f:
+        f.write('|----------|\n\n')
+        f.write(title+'\n')
+        f.write(company+'\n')
+        f.write(location+'\n')
+        f.write(description+'\n')
+        f.write('\n')
     time.sleep(1)
     
 # driver.get method() will navigate to a page given by the URL address
 for i in range(25,total_jobs,25):
-    search_url = 'https://www.linkedin.com/jobs/search/?f_E=2&f_TPR=r604800&f_WRA=true&geoId=103644278&keywords=(data%20scientist)AND(python)AND(git)&location=United%20States&sortBy=DD'
-    driver.get(search_url + '&start=' + str(i))
+    driver.get(base_url + '&start=' + str(i))
     time.sleep(5)
     
     jobs = set_up_job_search(driver)
@@ -103,4 +111,11 @@ for i in range(25,total_jobs,25):
         current_job += 1
         print(title, company, location)
         print(description)
+        with open(file_name,'a', encoding='utf-8') as f:
+            f.write('|----------|')
+            f.write(title)
+            f.write(company)
+            f.write(location)
+            f.write(description)
+            f.write('\n')
         time.sleep(1)
