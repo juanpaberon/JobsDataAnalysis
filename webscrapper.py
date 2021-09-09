@@ -78,7 +78,7 @@ jobs = set_up_job_search(driver)
 
 for i, job in enumerate(jobs):
     print()
-    job.click()
+    job.find_element_by_css_selector('.full-width.artdeco-entity-lockup__title.ember-view').click()
     time.sleep(1.5)
     title, company, location, description = get_job_info(driver, job)
     print('|----------|')
@@ -104,7 +104,7 @@ for i in range(25,total_jobs,25):
 
     for i, job in enumerate(jobs):
         print()
-        job.click()
+        job.find_element_by_css_selector('.full-width.artdeco-entity-lockup__title.ember-view').click()
         time.sleep(1.5)
         title, company, location, description = get_job_info(driver, job)
         print(current_job,total_jobs)
