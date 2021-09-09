@@ -78,7 +78,32 @@ def get_company_url(job):
     return url
 
 
-# specifies the path to the chromedriver.exe
+def save_job_informatin(file_name, job_information):
+    with open(file_name,'a', encoding='utf-8') as f:
+        f.write('|----------|\n\n')
+        for information in job_information:
+            f.write(information+'\n')
+        f.write('\n\n')
+        
+        
+def scrap_25_jobs(driver,jobs,current_job):
+    for j, job in enumerate(jobs):
+        print()
+        url = get_company_url(job)
+        job_information = [url]
+        job.find_element_by_css_selector('.full-width.artdeco-entity-lockup__title.ember-view').click()
+        time.sleep(1.5)
+        title, company, location, description = get_job_info(driver)
+        job_information.extend([title, company, location, description])
+        print('|----------|')
+        print(current_job,total_jobs)
+        current_job += 1
+        print(title, company, location, url)
+        save_job_informatin(file_name, job_information)
+        time.sleep(1)
+    return current_job
+        
+
 options = webdriver.ChromeOptions()
 options.add_argument('--ignore-certificate-errors-spki-list')
 options.add_argument('--ignore-ssl-errors')
@@ -100,49 +125,11 @@ time.sleep(5)
 total_jobs = get_total_jobs(driver)
 
 jobs = set_up_job_search(driver)
-
-for i, job in enumerate(jobs):
-    print()
-    url = get_company_url(job)
-    job.find_element_by_css_selector('.full-width.artdeco-entity-lockup__title.ember-view').click()
-    time.sleep(1.5)
-    title, company, location, description = get_job_info(driver)
-    print('|----------|')
-    print(current_job,total_jobs)
-    current_job += 1
-    print(title, company, location, url)
-    with open(file_name,'a', encoding='utf-8') as f:
-        f.write('|----------|\n\n')
-        f.write(title+'\n')
-        f.write(company+'\n')
-        f.write(url+'\n')
-        f.write(location+'\n')
-        f.write(description+'\n')
-        f.write('\n')
-    time.sleep(1)
+current_job = scrap_25_jobs(driver,jobs,current_job)
     
-# driver.get method() will navigate to a page given by the URL address
 for i in range(25,total_jobs,25):
     driver.get(base_url + '&start=' + str(i))
     time.sleep(5)
     
     jobs = set_up_job_search(driver)
-
-    for i, job in enumerate(jobs):
-        print()
-        url = get_company_url(job)
-        job.find_element_by_css_selector('.full-width.artdeco-entity-lockup__title.ember-view').click()
-        time.sleep(1.5)
-        title, company, location, description = get_job_info(driver)
-        print(current_job,total_jobs)
-        current_job += 1
-        print(title, company, location, url)
-        with open(file_name,'a', encoding='utf-8') as f:
-            f.write('|----------|')
-            f.write(title)
-            f.write(company)
-            f.write(url+'\n')
-            f.write(location)
-            f.write(description)
-            f.write('\n')
-        time.sleep(1)
+    current_job = scrap_25_jobs(driver,jobs,current_job)
